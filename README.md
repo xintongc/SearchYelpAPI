@@ -1,16 +1,8 @@
 # Summary
-This is a sample app to quickly get started with the Yelp APIs.
+The app is setup with Retrofit, a simple search API, and a couple of models with minimal fields.
 
-The app is setup with Retrofit, a simple search API, and a couple of models with minimal fields to get you started.
-
-You should modify the files in the `models` directory to add/remove any fields you feel are necessary.
-Use the documentation provided by [Yelp](https://www.yelp.ca/developers/documentation/v3/get_started)
-to help create your models.
-
-The files provided are references to help you get started. You may choose to add additional API endpoints,
-models, or fields to create an application you feel best fulfills the target requirements.
-
-**Feel free to edit, replace or delete any files you feel are needed**
+The app retrieves data from the Yelp API and displays information about restaurants. Users can search location 
+and terms on a search bar to get desired restaurants information.
 
 ---
 ## Getting Started
