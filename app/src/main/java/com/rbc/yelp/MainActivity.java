@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText mEtLocation;
     private EditText mEtSearchTerm;
     private Button mBtSearch;
-    private LinearLayout mLlSearchReultList;
+    private LinearLayout mLlSearchResultList;
     private LayoutInflater inflater;
 
 
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mViewModel = new ViewModelProvider(this, new ViewModelProvider.NewInstanceFactory()).get(SearchResultViewModel.class);
-        mLlSearchReultList = findViewById(R.id.ll_search_result_list);
+        mLlSearchResultList = findViewById(R.id.ll_search_result_list);
         inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mEtLocation = findViewById(R.id.et_location);
         mEtSearchTerm = findViewById(R.id.et_search_term);
@@ -56,27 +56,29 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        mLlSearchReultList.removeAllViews();
+        mLlSearchResultList.removeAllViews();
         buildViewForSearchYelpApi();
         super.onResume();
     }
 
     private void buildViewForSearchYelpApi() {
-        mViewModel.getBusinessLiveData().observe(this, l -> {
-            mViewModel.buildCategoryMap(mViewModel.getBusinessList());
-            buildViewForCategory();
+        mViewModel.getBusinessLiveData().observe(this, response -> {
+            if(response != null){
+                mViewModel.buildCategoryMap(mViewModel.getBusinessList());
+                buildViewForCategory();
+            }
         });
     }
 
     private void buildViewForCategory() {
-        mLlSearchReultList.removeAllViews();
+        mLlSearchResultList.removeAllViews();
         List<String> categoryList = mViewModel.getCategoryList();
         Map<String, List<Business>> categoryMap = mViewModel.getCategoryMap();
         for (String category : categoryList) {
-            View view = inflater.inflate(R.layout.row_category_header, mLlSearchReultList, false);
+            View view = inflater.inflate(R.layout.row_category_header, mLlSearchResultList, false);
             String num = String.valueOf(categoryMap.get(category).size());
             ((TextView) view.findViewById(R.id.tv_category)).setText(category + getString(R.string.category_title) + num);
-            mLlSearchReultList.addView(view);
+            mLlSearchResultList.addView(view);
 
             if (categoryMap != null && categoryMap.get(category) != null) {
                 buildViewForBusiness(categoryMap.get(category));
@@ -87,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void buildViewForBusiness(List<Business> businessList) {
         for (Business bussiness : businessList) {
-            View view = inflater.inflate(R.layout.row_business, mLlSearchReultList, false);
+            View view = inflater.inflate(R.layout.row_business, mLlSearchResultList, false);
             ((TextView) view.findViewById(R.id.tv_business)).setText(bussiness.getName());
             ((TextView) view.findViewById(R.id.tv_business_category)).setText(getString(R.string.category) + bussiness.getCategories().toString());
             ((RatingBar) view.findViewById(R.id.ratingBar)).setRating(bussiness.getRating().floatValue());
@@ -100,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                     ((RatingBar) view.findViewById(R.id.ratingBar)).setVisibility(View.VISIBLE);
                 }
             });
-            mLlSearchReultList.addView(view);
+            mLlSearchResultList.addView(view);
         }
     }
 
