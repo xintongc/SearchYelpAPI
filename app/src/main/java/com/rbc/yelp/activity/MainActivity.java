@@ -1,4 +1,4 @@
-package com.rbc.yelp;
+package com.rbc.yelp.activity;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,6 +14,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.rbc.yelp.R;
 import com.rbc.yelp.services.models.Business;
 import com.rbc.yelp.viewmodel.SearchResultViewModel;
 
@@ -39,18 +40,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mViewModel = new ViewModelProvider(this, new ViewModelProvider.NewInstanceFactory()).get(SearchResultViewModel.class);
-        mLlSearchResultList = findViewById(R.id.ll_search_result_list);
         inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mEtLocation = findViewById(R.id.et_location);
-        mEtSearchTerm = findViewById(R.id.et_search_term);
-        mBtSearch = findViewById(R.id.button);
-        mBtSearch.setOnClickListener(v ->
-                {
-                    hideSoftKeyboard(mEtLocation, this);
-                    mViewModel.searchYelpApi(mEtSearchTerm.getText().toString(), mEtLocation.getText().toString());
-                }
-        );
-        mEtLocation.setText(getString(R.string.toronto));
+        initView();
         mViewModel.searchYelpApi(mEtSearchTerm.getText().toString(), mEtLocation.getText().toString());
     }
 
@@ -61,9 +52,23 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
     }
 
+    private void initView() {
+        mEtLocation = findViewById(R.id.et_location);
+        mEtSearchTerm = findViewById(R.id.et_search_term);
+        mBtSearch = findViewById(R.id.button);
+        mBtSearch.setOnClickListener(v ->
+                {
+                    hideSoftKeyboard(mEtLocation, this);
+                    mViewModel.searchYelpApi(mEtSearchTerm.getText().toString(), mEtLocation.getText().toString());
+                }
+        );
+        mLlSearchResultList = findViewById(R.id.ll_search_result_list);
+        mEtLocation.setText(getString(R.string.toronto));
+    }
+
     private void buildViewForSearchYelpApi() {
         mViewModel.getBusinessLiveData().observe(this, response -> {
-            if(response != null){
+            if(response != null) {
                 mViewModel.buildCategoryMap(mViewModel.getBusinessList());
                 buildViewForCategory();
             }
@@ -77,29 +82,39 @@ public class MainActivity extends AppCompatActivity {
         for (String category : categoryList) {
             View view = inflater.inflate(R.layout.row_category_header, mLlSearchResultList, false);
             String num = String.valueOf(categoryMap.get(category).size());
-            ((TextView) view.findViewById(R.id.tv_category)).setText(category + getString(R.string.category_title) + num);
+            ((TextView) view.findViewById(R.id.tv_category)).setText(category + getString(R.string.colon) + num);
             mLlSearchResultList.addView(view);
 
             if (categoryMap != null && categoryMap.get(category) != null) {
-                buildViewForBusiness(categoryMap.get(category));
+                buildViewForBusinesses(categoryMap.get(category));
             }
         }
     }
 
 
-    private void buildViewForBusiness(List<Business> businessList) {
-        for (Business bussiness : businessList) {
+    private void buildViewForBusinesses(List<Business> businessList) {
+        for (Business business : businessList) {
             View view = inflater.inflate(R.layout.row_business, mLlSearchResultList, false);
-            ((TextView) view.findViewById(R.id.tv_business)).setText(bussiness.getName());
-            ((TextView) view.findViewById(R.id.tv_business_category)).setText(getString(R.string.category) + bussiness.getCategories().toString());
-            ((RatingBar) view.findViewById(R.id.ratingBar)).setRating(bussiness.getRating().floatValue());
-            Glide.with(view.getContext()).load(bussiness.getImageUrl()).into((ImageView) view.findViewById(R.id.imageView));
+            ((TextView) view.findViewById(R.id.tv_business_name)).setText(business.getName());
+            ((TextView) view.findViewById(R.id.tv_address)).setText(getString(R.string.address) + business.getLocation().getAddress1());
+            ((TextView) view.findViewById(R.id.tv_business_category)).setText(getString(R.string.category) + business.getCategories().toString().substring(1, business.getCategories().toString().length() -1));
+            ((RatingBar) view.findViewById(R.id.rb_ratingBar)).setRating(business.getRating().floatValue());
+            Glide.with(view.getContext()).load(business.getImageUrl()).into((ImageView) view.findViewById(R.id.iv_imageView));
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ((TextView) view.findViewById(R.id.tv_business_category)).setVisibility(View.VISIBLE);
-                    ((ImageView) view.findViewById(R.id.imageView)).setVisibility(View.VISIBLE);
-                    ((RatingBar) view.findViewById(R.id.ratingBar)).setVisibility(View.VISIBLE);
+                    if (((TextView) view.findViewById(R.id.tv_business_category)).getVisibility() == View.GONE) {
+                        ((TextView) view.findViewById(R.id.tv_business_category)).setVisibility(View.VISIBLE);
+                        ((TextView) view.findViewById(R.id.tv_address)).setVisibility(View.VISIBLE);
+                        ((ImageView) view.findViewById(R.id.iv_imageView)).setVisibility(View.VISIBLE);
+                        ((RatingBar) view.findViewById(R.id.rb_ratingBar)).setVisibility(View.VISIBLE);
+                    } else {
+                        ((TextView) view.findViewById(R.id.tv_business_category)).setVisibility(View.GONE);
+                        ((TextView) view.findViewById(R.id.tv_address)).setVisibility(View.GONE);
+                        ((ImageView) view.findViewById(R.id.iv_imageView)).setVisibility(View.GONE);
+                        ((RatingBar) view.findViewById(R.id.rb_ratingBar)).setVisibility(View.GONE);
+                    }
+
                 }
             });
             mLlSearchResultList.addView(view);
