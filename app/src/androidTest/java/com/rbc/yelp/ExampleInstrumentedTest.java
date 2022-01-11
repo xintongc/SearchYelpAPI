@@ -21,10 +21,10 @@ import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isClickable;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
@@ -34,11 +34,11 @@ public class ExampleInstrumentedTest {
     public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule<>(MainActivity.class);
 
     @Test
-    public void ensureTextChangeWork() {
+    public void checkSearchBar() {
         onView(withId(R.id.et_location)).perform(clearText());
         onView(withId(R.id.et_location)).perform(typeText("New York"));
         onView(withId(R.id.et_search_term)).perform(typeText("Sushi"));
-        onView(withId(R.id.button)).perform(click());
+        onView(withId(R.id.button)).check(matches(isClickable()));
     }
 
     @Test
@@ -98,6 +98,5 @@ public class ExampleInstrumentedTest {
         }
         Assert.fail("Timeout(30s) to wait for screen");
     }
-
 
 }
